@@ -1,0 +1,31 @@
+---
+title: "Prediction Assignment"
+author: "Felipe Augusto Azuero Mutis"
+date: "8/4/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r loadLibraries, message=FALSE}
+library(dplyr)
+```
+
+## The Data
+
+```{r loadTheData}
+training <- read.csv("./data/pml-training.csv")
+testing <- read.csv("./data/pml-testing.csv")
+```
+
+The database used for this study is the one gathered by [Velloso et al.](http://web.archive.org/web/20161224072740/http:/groupware.les.inf.puc-rio.br/har) In the study conducted by the authors, six healthy participants were asked to perform a set of 10 repetitions of the Unilateral Dumbbell Biceps Curl in five different ways.  During the exercise, accelerometer data were collected on the belt, forearm, arm.
+
+```{r summaryTraining}
+str(training)
+```
+
+## References
+
+Velloso, E.; Bulling, A.; Gellersen, H.; Ugulino, W.; Fuks, H. Qualitative Activity Recognition of Weight Lifting Exercises. Proceedings of 4th International Conference in Cooperation with SIGCHI (Augmented Human '13) . Stuttgart, Germany: ACM SIGCHI, 2013.
+
