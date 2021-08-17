@@ -1,7 +1,7 @@
 ---
 title: "Prediction Assignment"
 author: "Felipe Augusto Azuero Mutis"
-date: "8/4/2021"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: html_document
 ---
 
@@ -10,6 +10,11 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 ```{r loadLibraries, message=FALSE}
 library(dplyr)
+library(caret)
+```
+
+```{r setSeed}
+set.seed(4564)
 ```
 
 ## The Data
@@ -21,9 +26,76 @@ testing <- read.csv("./data/pml-testing.csv")
 
 The database used for this study is the one gathered by [Velloso et al.](http://web.archive.org/web/20161224072740/http:/groupware.les.inf.puc-rio.br/har) In the study conducted by the authors, six healthy participants were asked to perform a set of 10 repetitions of the Unilateral Dumbbell Biceps Curl in five different ways.  During the exercise, accelerometer data were collected on the belt, forearm, arm.
 
+The data has already been divided between a training dataset and a testing dataset. Each dataset has `r ncol(training)` variables.  The training dataset has `r nrow(training)` while the testing dataset has `r nrow(testing)` observations. Only in the training dataframe we can find the column `classe` while in the testing dataframe there is a column named `problem_id`.
+
+A summary of the training database is presented below.
+
 ```{r summaryTraining}
 str(training)
 ```
+
+As can be seen, several of the variables have a large number of missing values, coded in different ways. There are also some values expressed as `#DIV/0!`.
+
+## Data Cleaning.
+
+As a first step I will encode the values correctly.  Also due to the small number of occurrences and the large number of data I will eliminate the observations where there is one or more `#DIV/0!` present.  This operation will be carried out for both the training and testing datasets.
+
+```{r dataCleaningFunction}
+
+dataCleaning <- function(df) {
+  out <- df %>%
+    mutate(across(.fns = ~replace(., . == "", NA))) %>%
+    filter(across(.fns = ~!grepl("#DIV/0!", .))) %>%
+    mutate(across(.cols = c(user_name, new_window, num_window),
+                  .fns = ~as.factor(.)))
+  out
+}
+
+trainingClean <- dataCleaning(training)
+testingClean <- dataCleaning(testing)
+
+```
+
+To choose the covariates, I will first eliminate those columns that have more than 50% of missing values, and other columns like the index, timestamps, and window information.
+
+```{r dataCleaningCovariates}
+
+trainingClean <- trainingClean %>%
+  select(where(~mean(is.na(.)) < 0.5)) %>%
+  select(-c(X, raw_timestamp_part_1, 
+            raw_timestamp_part_2, 
+            cvtd_timestamp, 
+            new_window, 
+            num_window))
+
+```
+
+## Validation
+
+Since the database has a relatively large number of observations I will divide the training database into a part to train the models and another part to validate the results.
+
+```{r validation}
+inValidation <- createDataPartition(y=trainingClean$classe,
+                                    p=0.9, list=F)
+trDF <- trainingClean[inValidation,]
+valDF <- trainingClean[-inValidation,]
+
+```
+
+## Training Models.
+
+I will use a random forest model with 5 fold cross validation.  This decision is made because of the number of variables and observations, and to avoid overfitting. 
+
+```{r randomForests, results = 'hide', error=F, warning=F, message=F}
+
+modFit <- train(classe~., 
+                data=trDF,
+                trControl=trainControl(method="cv", number=5))
+
+modFit
+
+```
+
 
 ## References
 
