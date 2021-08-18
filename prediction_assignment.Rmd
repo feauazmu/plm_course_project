@@ -126,7 +126,7 @@ The results of the predictions in the testing database are presented below.
 predTest <- predict(modFit, testing)
 
 predTesting <- data.frame(prediction=predTest, row.names=testing$X)
-head(predTesting)
+predTesting
 ```
 
 
