@@ -110,13 +110,13 @@ To get an idea of the accuracy, the model is then tested using the validation da
 ```{r predValidation}
 pred <- predict(modFit, valDF)
 
-cnfMtr <- confusionMatrix(pred, valDF$classe)
+cnfMtr <- confusionMatrix(pred, as.factor(valDF$classe))
 
 cnfMtr
 
 ```
 
-As can be seen above the model gives an accuracy of `r round(cnfMtr$overall[['Accuracy']]*100, 3)`\% on the validation data.
+As can be seen above the model gives an accuracy of `r round(cnfMtr$overall[['Accuracy']]*100, 2)`\% on the validation data.
 
 ## Prediction
 
