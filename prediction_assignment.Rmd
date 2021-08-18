@@ -17,6 +17,13 @@ library(caret)
 set.seed(4564)
 ```
 
+
+## Summary
+
+The following paper presents an attempt to predict how well an activity (physical exercise) is performed using data obtained from different accelerometers placed on various parts of the participants' bodies.
+
+Using a random forest model, I was able to obtain a prediction accuracy close to 100\% in a validation database.
+
 ## The Data
 
 ```{r loadTheData}
@@ -94,6 +101,31 @@ modFit <- train(classe~.,
 
 modFit
 
+```
+
+## Model Validation.
+
+To get an idea of the accuracy, the model is then tested using the validation database.
+
+```{r predValidation}
+pred <- predict(modFit, valDF)
+
+cnfMtr <- confusionMatrix(pred, valDF$classe)
+
+cnfMtr
+
+```
+
+As can be seen above the model gives an accuracy of `r round(cnfMtr$overall[['Accuracy']]*100, 3)`\% on the validation data.
+
+## Prediction
+
+The results of the predictions in the testing database are presented below.
+
+```{r prediction}
+predTest <- predict(modFit, testing)
+
+data.frame(prediction=predTest, row.names=testing$X)
 ```
 
 
